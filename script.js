@@ -103,3 +103,50 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+const rangeInput = document.getElementById("range");
+const historySelect = document.getElementById("historySelect");
+
+// 保存した履歴を読み込んで select に追加
+function loadHistory() {
+  const history = JSON.parse(localStorage.getItem("distanceHistory")) || [];
+  historySelect.innerHTML = '<option value="">過去の距離を選択</option>';
+  history.forEach(value => {
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = `${value} km`;
+    historySelect.appendChild(option);
+  });
+}
+
+// 新しい距離を履歴に追加
+function saveToHistory(value) {
+  let history = JSON.parse(localStorage.getItem("distanceHistory")) || [];
+  if (!history.includes(value)) {
+    history.unshift(value); // 最新を先頭に
+    if (history.length > 10) history = history.slice(0, 10); // 最大10件
+    localStorage.setItem("distanceHistory", JSON.stringify(history));
+    loadHistory();
+  }
+}
+
+// セレクトボックスで距離を選択したら入力欄に反映
+historySelect.addEventListener("change", () => {
+  const selected = historySelect.value;
+  if (selected) {
+    rangeInput.value = selected;
+  }
+});
+
+// ボタンを押したときの処理（距離の履歴保存もここに）
+document.getElementById("getLocation").addEventListener("click", function () {
+  const range = parseFloat(rangeInput.value);
+  if (!isNaN(range)) {
+    saveToHistory(range);
+  }
+
+  // --- ここから下は既存の位置取得＆マップリンク生成の処理 ---
+  // ...あなたのコード続き...
+});
+
+// 初期表示時に履歴を読み込む
+window.addEventListener("DOMContentLoaded", loadHistory);
